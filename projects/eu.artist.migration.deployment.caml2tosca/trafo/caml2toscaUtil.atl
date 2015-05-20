@@ -1,0 +1,54 @@
+--/*******************************************************************************
+-- * Copyright (c) 2015 Vienna University of Technology.
+-- * All rights reserved. This program and the accompanying materials
+-- * are made available under the terms of the Eclipse Public License v1.0
+-- * which accompanies this distribution, and is available at
+-- * http://www.eclipse.org/legal/epl-v10.html
+-- *
+-- * Contributors:
+-- * Alexander Bergmayr (Vienna University of Technology) - initial API and implementation
+-- *
+-- * Initially developed in the context of ARTIST EU project www.artist-project.eu
+-- *******************************************************************************/
+
+-- @atlcompiler emftvm
+-- @nsURI TOSCA=http://docs.oasis-open.org/tosca/ns/2011/12
+-- @path TOSCA=/eu.artist.migration.deployment.tosca/model/tosca.ecore
+-- @nsURI UMLMM=http://www.eclipse.org/uml2/4.0.0/UML
+
+library caml2toscaUtil;
+
+-- elements of the CAML profiles
+helper def: cloudStereotypes : Sequence(UMLMM!Stereotype) = UMLMM!Stereotype.allInstancesFrom('CCP');
+helper def: cloudInstanceType : UMLMM!Stereotype = thisModule.cloudStereotypes -> any(e | e.name = 'CloudInstanceType');
+
+-- standard ns URIs
+helper def: globalNsURI: String = 'http://opentosca.org/types/declarative';
+helper def: toscaBaseTypesNsURI : String = 'http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes';
+helper def: toscaSpecificTypesNsURI : String = 'http://docs.oasis-open.org/tosca/ns/2011/12/ToscaSpecificTypes';
+
+-- a global prefix 
+helper def: globalPrefix : String = 'ns85';
+helper def: toscaBaseTypesPrefix : String = 'tbt';
+helper def: toscaSpecificTypesPrefix: String = 'tst';
+
+helper def: hostedOnCounter : Integer = 0;
+helper def: dependsOnCounter : Integer = 0;
+helper context Integer def: inc() : Integer = 
+	self + 1;
+
+-- String namespaceURI, String localPart, String prefix
+helper context UMLMM!Element def: createQName(nsURI : String, localPart : String, prefix : String) : OclAny =
+	"#native"!"javax::xml::namespace::QName".refNewInstance(Sequence{nsURI, localPart, prefix});
+
+helper context UMLMM!Element def: createContainmentFeatureMapEntry(nsPrefix : String, nsURI : String, name : String, base : UMLMM!Element, refinement : UMLMM!Stereotype) : OclAny =
+	"#native"!"eu::artist::migration::deployment::tosca::util::ToscaUtil".refInvokeStaticOperation
+		('createContainmentFeatureMapEntry', Sequence{nsPrefix, nsURI, name, base, refinement});
+
+helper context UMLMM!Element def: createMapEntryForSlots(nsPrefix : String, nsURI : String, name : String, slots : Sequence(UMLMM!Slot)) : OclAny =
+	"#native"!"eu::artist::migration::deployment::tosca::util::ToscaUtil".refInvokeStaticOperation
+		('createFeatureMapEntryForSlots', Sequence{nsPrefix, nsURI, name, slots});
+
+helper context UMLMM!Element def: createPropertiesDefinition() : OclAny =
+	"#native"!"eu::artist::migration::deployment::tosca::util::ToscaUtil".refInvokeStaticOperation
+		('createPropertiesDefinition', Sequence{self});

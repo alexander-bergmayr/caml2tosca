@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<tosca:Definitions id="winery-defs-for_ns86-HelloAppTest" targetNamespace="http://example.com/hello" xmlns:tosca="http://docs.oasis-open.org/tosca/ns/2011/12">
+	<tosca:ArtifactTemplate name="helloZip" id="helloZip" type="tbt:ArchiveArtifact" xmlns:tbt="http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes">
+        <tosca:ArtifactReferences>
+            <tosca:ArtifactReference reference="artifacttemplates/http%253A%252F%252Fexample.com%252Fhello/helloZip/files/hello.zip"/>
+        </tosca:ArtifactReferences>
+    </tosca:ArtifactTemplate>
+    <tosca:ServiceTemplate id="HelloAppTest" name="HelloAppTest" targetNamespace="http://example.com/hello">
+        <tosca:TopologyTemplate>
+            <tosca:NodeTemplate name="OpenStack" id="OpenStack" type="ns85:OpenStack" xmlns:ns85="http://opentosca.org/types/declarative">
+                <tosca:Properties>
+                    <ns84:OpenToscaCloudApiProps xmlns:ty="http://opentosca.org/types/declarative" xmlns="http://www.example.com/tosca/Types/OpenTosca" xmlns:ns84="http://www.example.com/tosca/Types/OpenTosca">
+                        <SSHUser>ubuntu</SSHUser>
+                        <SSHPrivateKey/>
+                        <accessKey/>
+                        <regionEndpoint>129.69.209.127</regionEndpoint>
+                        <secretKey/>
+                        <keyPairName/>
+                        <securityGroup>default</securityGroup>
+			</ns84:OpenToscaCloudApiProps>
+                </tosca:Properties>
+            </tosca:NodeTemplate>
+            <tosca:NodeTemplate name="ApacheWebServer" id="ApacheWebServer" type="tst:ApacheWebServer" xmlns:tst="http://docs.oasis-open.org/tosca/ns/2011/12/ToscaSpecificTypes">
+                <tosca:Properties>
+                    <tst:ApacheWebServerProperties xmlns:ty="http://docs.oasis-open.org/tosca/ns/2011/12/ToscaSpecificTypes" xmlns="http://docs.oasis-open.org/tosca/ns/2011/12/ToscaSpecificTypes">
+                        <ty:httpdport>80</ty:httpdport>
+			</tst:ApacheWebServerProperties>
+                </tosca:Properties>
+            </tosca:NodeTemplate>
+            <tosca:NodeTemplate name="ApachePHPModule" id="ApachePHPModule" type="tst:ApachePHPModule" xmlns:tst="http://docs.oasis-open.org/tosca/ns/2011/12/ToscaSpecificTypes"/>
+            <tosca:NodeTemplate name="PhpApplication" id="PhpApplication" type="ns85:PhpApplication" xmlns:ns85="http://opentosca.org/types/declarative">
+                <tosca:DeploymentArtifacts>
+                    <tosca:DeploymentArtifact name="helloZipDa" artifactType="tbt:ArchiveArtifact" artifactRef="helloZip"  xmlns:tbt="http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes"/>
+                </tosca:DeploymentArtifacts>
+            </tosca:NodeTemplate>
+            <tosca:NodeTemplate name="Ubuntu-13.10-Server" id="Ubuntu-13_10-Server" type="ns85:Ubuntu-13.10-Server" xmlns:ns85="http://opentosca.org/types/declarative">
+                <tosca:Properties>
+                    <ns84:OpenToscaServerProps xmlns:ty="http://opentosca.org/types/declarative" xmlns="http://www.example.com/tosca/Types/OpenTosca" xmlns:ns84="http://www.example.com/tosca/Types/OpenTosca">
+                        <NumCpus>1</NumCpus>
+                        <Memory>1024</Memory>
+                        <ServerIP/>
+                        <InstanceId/>
+                        <instanceType>m1.small</instanceType>
+			</ns84:OpenToscaServerProps>
+                </tosca:Properties>
+            </tosca:NodeTemplate>
+            <tosca:RelationshipTemplate name="con_37" id="con_37" type="tbt:HostedOn" xmlns:tbt="http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes">
+                <tosca:SourceElement ref="PhpApplication"/>
+                <tosca:TargetElement ref="ApacheWebServer"/>
+            </tosca:RelationshipTemplate>
+            <tosca:RelationshipTemplate name="con_49" id="con_49" type="tbt:HostedOn" xmlns:tbt="http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes">
+                <tosca:SourceElement ref="ApachePHPModule"/>
+                <tosca:TargetElement ref="ApacheWebServer"/>
+            </tosca:RelationshipTemplate>
+            <tosca:RelationshipTemplate name="con_61" id="con_61" type="tbt:DependsOn" xmlns:tbt="http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes">
+                <tosca:SourceElement ref="PhpApplication"/>
+                <tosca:TargetElement ref="ApachePHPModule"/>
+            </tosca:RelationshipTemplate>
+            <tosca:RelationshipTemplate name="con_78" id="con_78" type="tbt:HostedOn" xmlns:tbt="http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes">
+                <tosca:SourceElement ref="ApacheWebServer"/>
+                <tosca:TargetElement ref="Ubuntu-13_10-Server"/>
+            </tosca:RelationshipTemplate>
+            <tosca:RelationshipTemplate name="con_90" id="con_90" type="tbt:HostedOn" xmlns:tbt="http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes">
+                <tosca:SourceElement ref="Ubuntu-13_10-Server"/>
+                <tosca:TargetElement ref="OpenStack"/>
+            </tosca:RelationshipTemplate>
+        </tosca:TopologyTemplate>
+        <tosca:Plans/>
+    </tosca:ServiceTemplate>
+</tosca:Definitions>

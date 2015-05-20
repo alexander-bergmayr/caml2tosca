@@ -1,0 +1,224 @@
+--/*******************************************************************************
+-- * Copyright (c) 2015 Vienna University of Technology.
+-- * All rights reserved. This program and the accompanying materials
+-- * are made available under the terms of the Eclipse Public License v1.0
+-- * which accompanies this distribution, and is available at
+-- * http://www.eclipse.org/legal/epl-v10.html
+-- *
+-- * Contributors:
+-- * Alexander Bergmayr (Vienna University of Technology) - initial API and implementation
+-- *
+-- * Initially developed in the context of ARTIST EU project www.artist-project.eu
+-- *******************************************************************************/
+
+-- @atlcompiler emftvm
+-- @nsURI TOSCA=http://docs.oasis-open.org/tosca/ns/2011/12
+-- @path TOSCA=/eu.artist.migration.deployment.tosca/model/tosca.ecore
+-- @nsURI UMLMM=http://www.eclipse.org/uml2/4.0.0/UML
+
+-------------------------------------------------------------------------
+-- Constraints - Check the UML Model: 
+-- 1) Single-classification, i.e., the classifier feature references only one Classifier	
+--	
+-------------------------------------------------------------------------
+
+-- TODO: XML-header: standalone=yes is missing
+--       Where do we get the gloabl prefix?
+
+-- UMLM: the CAML Deployment model
+-- CL:   the CAML Library
+-- CP:   the Cloud Profile
+-- CCP:  the Common Cloud Profile	
+		
+module caml2toscaTemplates;
+create TM : TOSCA from UMLM : UMLMM, CL : UMLMM, CP : UMLMM, CCP : UMLMM;
+
+uses caml2toscaUtil;
+
+-- elements of the CAML library
+helper def: cloudNode : UMLMM!Node = UMLMM!Node.allInstancesFrom('CL') -> any(e | e.name = 'CloudNode');
+
+-- elements of the CAML profiles
+helper def: cloudStereotypes : Sequence(UMLMM!Stereotype) = UMLMM!Stereotype.allInstancesFrom('CCP');
+helper def: cloudInstanceType : UMLMM!Stereotype = thisModule.cloudStereotypes -> any(e | e.name = 'CloudNode');
+
+-- create the root elements of the TOSCA models 
+-- NodeTemplates and NodeRelationships are contained by the TopologyTemplate
+rule DeploymentPackage2ServiceTemplate {
+	-- if a Package contains at least an Artifact that is
+	-- deployed then we create a ServiceTemplate 
+	from s: UMLMM!Package in UMLM (
+		UMLMM!Deployment.allInstancesFrom('UMLM') -> exists(e | s.ownedElement -> includes(e.deployedArtifact -> first()))
+	)
+	to 		
+		t1: TOSCA!DefinitionsType (
+			id <- 'defs-for-'.concat(s.name),
+			targetNamespace <- s.URI,
+			serviceTemplate <- Sequence{t2},
+			artifactTemplate <- s.ownedElement -> select(e | e.oclIsTypeOf(UMLMM!Artifact)) -> collect(e | thisModule.resolveTemp(e, 't2'))
+		),
+		
+		t2: TOSCA!TServiceTemplate (
+			id <- s.name,
+			name <- s.name,
+			targetNamespace <- s.URI,
+			topologyTemplate <- t3
+		),
+		
+		t3: TOSCA!TTopologyTemplate (
+			nodeTemplate <- s.ownedElement -> select(e | e.oclIsTypeOf(UMLMM!InstanceSpecification)),
+			relationshipTemplate <- s.ownedElement -> select(e | e.oclIsTypeOf(UMLMM!InstanceSpecification)) ->
+				collect(e | e.deployment) -> flatten() ->
+				union(s.ownedElement -> select(e | e.oclIsTypeOf(UMLMM!Dependency)))
+		)
+}
+
+rule ArtefactInstance2NodeTemplate {
+	from s: UMLMM!InstanceSpecification in UMLM (
+		-- single classification in TOSCA
+		s.classifier -> exists(e | e.oclIsTypeOf(UMLMM!Artifact))
+	)
+	-- get the first classifier
+	using {c : UMLMM!Artifact = s.classifier -> first();}
+	to 
+		t0: TOSCA!TNodeTemplate (
+			id <- s.name,
+			-- If the type is alredy know by OpenTOSCA then we use the tst prefix / namespace
+			type <- if(s.getModel() = c.getModel()) then s.createQName(thisModule.globalNsURI, c.name, thisModule.globalPrefix)
+						else thisModule.createQName(thisModule.toscaSpecificTypesNsURI, c.name, thisModule.toscaSpecificTypesPrefix)
+					endif,
+			name <- s.name,
+			deploymentArtifacts <- if(s.getModel() = c.getModel()) then c else OclUndefined endif
+		)
+}
+
+rule Artefact2DeploymentArtifact {
+	from s: UMLMM!Artifact in UMLM
+	-- TODO: provide possible types
+	using {artifactTypeName : String = if(s.fileName.endsWith('.zip')) then 'ArchiveArtifact' else '' endif; }
+	to
+		t0: TOSCA!TDeploymentArtifacts (
+			deploymentArtifact <- Sequence{t1}	
+		),
+		
+		t1: TOSCA!TDeploymentArtifact (
+			name <- s.name.concat(artifactTypeName),
+			artifactRef <- s.createQName(thisModule.toscaBaseTypesNsURI, s.name.concat(artifactTypeName), thisModule.toscaBaseTypesPrefix),
+			artifactType <- s.createQName(thisModule.toscaBaseTypesNsURI, artifactTypeName, thisModule.toscaBaseTypesPrefix)
+		),
+		
+		t2: TOSCA!TArtifactTemplate (
+			name <- s.name.concat(artifactTypeName),
+			id <- s.name.concat(artifactTypeName),
+			type <- s.createQName(thisModule.toscaBaseTypesNsURI, artifactTypeName, thisModule.toscaBaseTypesPrefix),
+			artifactReferences <- t3	
+		),
+		
+		t3: TOSCA!ArtifactReferencesType (
+			artifactReference <- Sequence{t4}	
+		),
+		
+		t4: TOSCA!TArtifactReference (
+			reference <- s.fileName	
+		)
+}
+
+rule ExecutionEnvironmentInstance2NodeTemplate {
+	from s: UMLMM!InstanceSpecification in UMLM (
+		-- single classification in TOSCA
+		s.classifier -> exists(e | e.oclIsTypeOf(UMLMM!ExecutionEnvironment))											 
+	)
+	-- get the first classifier
+	using {c : UMLMM!Classifier = s.classifier -> first();}
+	to 
+		t0: TOSCA!TNodeTemplate (
+			id <- s.name,
+			type <- s.createQName(thisModule.toscaSpecificTypesNsURI, c.name, thisModule.toscaSpecificTypesPrefix),
+			name <- s.name,
+			-- properties
+			properties <- t1
+		),
+		-- create properties
+		t1: TOSCA!PropertiesType (
+			any <- Sequence{s.createMapEntryForSlots(thisModule.toscaSpecificTypesPrefix, thisModule.toscaSpecificTypesNsURI, s.name.concat('Properties'), s.slot)}
+		)		
+}
+
+rule CloudNodeInstance2NodeTemplate {
+	from s: UMLMM!InstanceSpecification in UMLM (
+		-- TODO: Check lazy evaluation ... second condition ;)										 
+		-- single classification in TOSCA
+		s.classifier -> exists(e | e = thisModule.cloudNode) and not thisModule.cloudInstanceType.oclIsUndefined()
+	) 
+	-- TODO: What if there is no stereotype applied?
+	using { refinement : UMLMM!Stereotype = s.getAppliedSubstereotypes(thisModule.cloudInstanceType) -> first(); }
+	to
+		t0: TOSCA!TNodeTemplate (
+			-- TODO: The TOSCA ID should be provided by the model!
+			id <- s.name,
+			name <- refinement.name,
+			type <- thisModule.createQName('http://opentosca.org/types/declarative', refinement.name, 'ns85'),
+			properties <- t1
+		),
+		-- create PropertiesType if the applied stereotype provides properties
+		t1: TOSCA!PropertiesType (
+			-- TODO: the prefix and namespace need to be provided by the model!
+			any <- Sequence{s.createContainmentFeatureMapEntry('ns84', 'http://www.example.com/tosca/Types/OpenTosca', refinement.name.concat('Properties'), s, refinement)}
+		)
+}
+
+-- the Deployment is transformed into the HostedOn Tosca base type 
+rule Deployment2HostedOn {
+	from s: UMLMM!Deployment in UMLM (
+		s.oclIsTypeOf(UMLMM!Deployment)								  
+	)
+	using { relName : String = 'HostedOn'; }
+	to 
+		t0: TOSCA!TRelationshipTemplate (
+			name <- relName,
+			type <- thisModule.createQName(thisModule.toscaBaseTypesNsURI, relName, thisModule.toscaBaseTypesPrefix),
+			sourceElement <- t1,
+			targetElement <- t2
+		),
+		-- the SourceElement
+		t1: TOSCA!SourceElementType (
+			ref <- s.deployedArtifact -> first().name		
+		),
+		-- the TargetElement
+		t2: TOSCA!TargetElementType (
+			ref <- s.client -> first().name
+		)
+	do {
+		t0.id <- relName.concat('_').concat(thisModule.hostedOnCounter.toString());
+		thisModule.hostedOnCounter <- thisModule.hostedOnCounter.inc();
+	}
+}
+
+-- the Dependency is transformed into the DependsOn TOSCA base type
+rule Dependency2DependsOn {
+	from s: UMLMM!Dependency in UMLM (
+		s.oclIsTypeOf(UMLMM!Dependency)						  
+	)
+	using { relName : String = 'DependsOn'; }
+	to
+		t0: TOSCA!TRelationshipTemplate (
+			name <- relName,
+			type <- thisModule.createQName(thisModule.toscaBaseTypesNsURI, relName, thisModule.toscaBaseTypesPrefix),
+			sourceElement <- t1,
+			targetElement <- t2
+		),
+		-- the SourceElement
+		t1: TOSCA!SourceElementType (
+			ref <- s.client -> first().name
+		),
+		-- the TargetElement
+		t2: TOSCA!TargetElementType (
+			ref <- s.supplier-> first().name	
+		)
+	do {
+		t0.id <- relName.concat('_').concat(thisModule.dependsOnCounter.toString());
+		thisModule.dependsOnCounter <- thisModule.dependsOnCounter.inc();
+	}
+}
+
+

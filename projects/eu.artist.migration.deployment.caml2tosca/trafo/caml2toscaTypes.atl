@@ -1,0 +1,105 @@
+--/*******************************************************************************
+-- * Copyright (c) 2015 Vienna University of Technology.
+-- * All rights reserved. This program and the accompanying materials
+-- * are made available under the terms of the Eclipse Public License v1.0
+-- * which accompanies this distribution, and is available at
+-- * http://www.eclipse.org/legal/epl-v10.html
+-- *
+-- * Contributors:
+-- * Alexander Bergmayr (Vienna University of Technology) - initial API and implementation
+-- *
+-- * Initially developed in the context of ARTIST EU project www.artist-project.eu
+-- *******************************************************************************/
+
+-- @atlcompiler emftvm
+-- @nsURI TOSCA=http://docs.oasis-open.org/tosca/ns/2011/12
+-- @path TOSCA=/eu.artist.migration.deployment.tosca/model/tosca.ecore
+-- @nsURI UMLMM=http://www.eclipse.org/uml2/4.0.0/UML
+
+-- CL:   the CAML Library
+-- CP:   the Cloud Profile	
+module caml2toscaTypes;
+create TM : TOSCA from CL : UMLMM, CP : UMLMM;
+
+uses caml2toscaUtil;
+
+-- create the root elements of the TOSCA definitions
+rule CAMLLibrary2TypeDefinitions {
+	from s: UMLMM!Model in CL, s1 : UMLMM!Profile in CP
+	to 
+		t1: TOSCA!DefinitionsType (
+			id <- 'defs-for-'.concat(s.name),
+			targetNamespace <- s.URI,
+			nodeType <- s.packagedElement -> select(e | e.oclIsKindOf(UMLMM!Classifier) and not e.oclIsKindOf(UMLMM!Association)) 
+							-> union(s1.allOwnedElements() -> select(e | e.oclIsTypeOf(UMLMM!Stereotype))),
+			relationshipType <- s.packagedElement -> select(e | e.oclIsKindOf(UMLMM!Association))
+		)
+}
+
+-- TODO: check issue with rule inheritance
+--       the class 'TEntityType' is not a valid classifier  
+--abstract rule NamedElement2NamedType {
+--	from
+--		s: UMLMM!NamedElement
+--	to
+--		t: TOSCA!TEntityType (
+--			name <- s.name
+--		)
+--}
+
+
+-- extends NamedElement2NamedType
+rule CloudLibraryClassifier2NodeType {
+	-- we need to exclude associations explicitly as we do have a 
+	-- dedicated rule for them
+	from
+		s: UMLMM!Classifier (not s.oclIsKindOf(UMLMM!Association))
+	to 
+		t0: TOSCA!TNodeType (
+			name <- s.name,
+			"abstract" <- if(s.isAbstract) then #yes else #no endif,
+			-- Assumption: Single-Inheritance
+			derivedFrom <- s.generalization -> any(e | true),
+			propertiesDefinition <- if(s.attribute -> exists(e | e.association = OclUndefined)) then thisModule.createPropertiesDefinition(s) else OclUndefined endif 
+		)
+}
+
+-- extends NamedElement2NamedType
+rule CloudRelationships2NodeRelationship {
+	from
+		s: UMLMM!Association (not s.oclIsKindOf(UMLMM!Extension))
+	to t0 : TOSCA!TRelationshipType (
+		name <- s.name,
+		validSource <- t1,
+		validTarget <- t2
+	),
+	
+	t1 : TOSCA!ValidSourceType (
+		-- TODO: do we have types for which the URI / prefix should be different than tst?
+		typeRef <- s.createQName(thisModule.toscaSpecificTypesNsURI, s.memberEnd -> at(1).type.name, thisModule.toscaSpecificTypesPrefix)
+	),
+	
+	t2 : TOSCA!ValidTargetType (
+		-- TODO: do we have types for which the URI / prefix should be different than tst? 
+		typeRef <- s.createQName(thisModule.toscaSpecificTypesNsURI, s.memberEnd -> at(2).type.name, thisModule.toscaSpecificTypesPrefix) 
+	)
+}
+
+rule Generalization2DerivedFrom {
+	from
+		s: UMLMM!Generalization
+	to
+		t: TOSCA!DerivedFromType2 (
+			typeRef <- s.createQName(thisModule.toscaSpecificTypesNsURI, s.general.name, thisModule.toscaSpecificTypesPrefix)	
+		)
+}
+
+lazy rule createPropertiesDefinition {
+	from 
+		s: UMLMM!Classifier
+	to
+		t1: TOSCA!PropertiesDefinitionType (
+			element <- s.createQName(thisModule.toscaSpecificTypesNsURI, s.createPropertiesDefinition(), thisModule.toscaSpecificTypesPrefix) 
+		)
+}
+

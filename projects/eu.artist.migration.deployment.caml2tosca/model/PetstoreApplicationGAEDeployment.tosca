@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<tosca:Definitions_._type xmlns:Blah="http://Blah" xmlns:ns75="blah" xmlns:tbt="http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes" xmlns:tosca="http://docs.oasis-open.org/tosca/ns/2011/12" id="defs-for-application-deployment" targetNamespace="http://petstore/deployment">
+  <tosca:ServiceTemplate id="application-deployment" name="application-deployment" targetNamespace="http://petstore/deployment">
+    <tosca:TopologyTemplate>
+      <tosca:NodeTemplate id="GAEF1" name="GAEF1">
+        <tosca:Properties>
+          <Blah:GAEF1Properties><Blah:middleware>Java</Blah:middleware></Blah:GAEF1Properties>
+        </tosca:Properties>
+      </tosca:NodeTemplate>
+      <tosca:NodeTemplate id="GAEF4" name="GAEF4">
+        <tosca:Properties>
+          <Blah:GAEF4Properties><Blah:middleware>PHP</Blah:middleware></Blah:GAEF4Properties>
+        </tosca:Properties>
+      </tosca:NodeTemplate>
+      <tosca:NodeTemplate id="business" type="ns75:PetstoreBusiness" name="business"/>
+      <tosca:NodeTemplate id="data" type="ns75:PetstoreData" name="data"/>
+      <tosca:NodeTemplate id="CopyOf_data_1" type="ns75:PetstoreData" name="CopyOf_data_1"/>
+      <tosca:RelationshipTemplate type="tbt:HostedOn">
+        <tosca:SourceElement ref="cN1"/>
+        <tosca:TargetElement ref="business"/>
+      </tosca:RelationshipTemplate>
+      <tosca:RelationshipTemplate type="tbt:HostedOn">
+        <tosca:SourceElement ref="cN2"/>
+        <tosca:TargetElement ref="data"/>
+      </tosca:RelationshipTemplate>
+    </tosca:TopologyTemplate>
+  </tosca:ServiceTemplate>
+</tosca:Definitions_._type>
