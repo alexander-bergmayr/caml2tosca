@@ -4,9 +4,9 @@ Bundle-Name: %pluginName
 Bundle-SymbolicName: eu.artist.migration.deployment.tosca;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-ClassPath: .
-Bundle-Vendor: %providerName
+Bundle-Vendor: TU Wien
 Bundle-Localization: plugin
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: eu.artist.migration.deployment.tosca,
  eu.artist.migration.deployment.tosca.impl,
  eu.artist.migration.deployment.tosca.util
