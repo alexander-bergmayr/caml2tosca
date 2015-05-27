@@ -4,9 +4,6 @@
 .mtj.tmp/
 
 # Package Files #
-*.jar
-*.war
-*.ear
 bin/
 
 # Latex Files #
