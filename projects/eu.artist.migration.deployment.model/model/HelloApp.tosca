@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tosca:Definitions xmlns:OpenTosca="http://www.example.com/tosca/Types/OpenTosca" xmlns:ns85="http://opentosca.org/types/declarative" xmlns:tbt="http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes" xmlns:tosca="http://docs.oasis-open.org/tosca/ns/2011/12" xmlns:tst="http://docs.oasis-open.org/tosca/ns/2011/12/ToscaSpecificTypes" id="defs-for-application-deployment">
+  <tosca:ServiceTemplate id="application-deployment" name="application-deployment">
+    <tosca:TopologyTemplate>
+      <tosca:NodeTemplate id="PHPApplication" type="ns85:PHPApplication" name="PHPApplication">
+        <tosca:DeploymentArtifacts>
+          <tosca:DeploymentArtifact artifactRef="tbt:PHPApplicationArchiveArtifact" artifactType="tbt:ArchiveArtifact" name="PHPApplicationArchiveArtifact"/>
+        </tosca:DeploymentArtifacts>
+      </tosca:NodeTemplate>
+      <tosca:NodeTemplate id="ApachePHPModule" type="tst:ApachePHPModule" name="ApachePHPModule"/>
+      <tosca:NodeTemplate id="ApacheWebServer" type="tst:ApacheWebServer" name="ApacheWebServer">
+        <tosca:Properties>
+          <tst:ApacheWebServerProperties><tst:httpdPort>8080</tst:httpdPort></tst:ApacheWebServerProperties>
+        </tosca:Properties>
+      </tosca:NodeTemplate>
+      <tosca:NodeTemplate id="Ubuntu-13_10-Server" type="ns85:Ubuntu-13.10-Server" name="Ubuntu-13.10-Server">
+        <tosca:Properties>
+          <OpenTosca:Ubuntu-13.10-ServerProperties><OpenTosca:NumCpus>1</OpenTosca:NumCpus><OpenTosca:Memory>1024</OpenTosca:Memory><OpenTosca:instanceType>m1.small</OpenTosca:instanceType></OpenTosca:Ubuntu-13.10-ServerProperties>
+        </tosca:Properties>
+      </tosca:NodeTemplate>
+      <tosca:RelationshipTemplate id="HostedOn_0" type="tbt:HostedOn" name="HostedOn">
+        <tosca:SourceElement ref="PHPApplication"/>
+        <tosca:TargetElement ref="ApacheWebServer"/>
+      </tosca:RelationshipTemplate>
+      <tosca:RelationshipTemplate id="HostedOn_1" type="tbt:HostedOn" name="HostedOn">
+        <tosca:SourceElement ref="ApachePHPModule"/>
+        <tosca:TargetElement ref="ApacheWebServer"/>
+      </tosca:RelationshipTemplate>
+      <tosca:RelationshipTemplate id="HostedOn_2" type="tbt:HostedOn" name="HostedOn">
+        <tosca:SourceElement ref="ApacheWebServer"/>
+        <tosca:TargetElement ref="Ubuntu-13_10-Server"/>
+      </tosca:RelationshipTemplate>
+      <tosca:RelationshipTemplate id="DependsOn_0" type="tbt:DependsOn" name="DependsOn">
+        <tosca:SourceElement ref="PHPApplication"/>
+        <tosca:TargetElement ref="ApachePHPModule"/>
+      </tosca:RelationshipTemplate>
+    </tosca:TopologyTemplate>
+  </tosca:ServiceTemplate>
+  <tosca:ArtifactTemplate id="PHPApplicationArchiveArtifact" type="tbt:ArchiveArtifact" name="PHPApplicationArchiveArtifact">
+    <tosca:ArtifactReferences>
+      <tosca:ArtifactReference reference="Artifact1.zip"/>
+    </tosca:ArtifactReferences>
+  </tosca:ArtifactTemplate>
+</tosca:Definitions>

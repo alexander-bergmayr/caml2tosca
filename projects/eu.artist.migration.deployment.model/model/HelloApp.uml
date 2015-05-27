@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmi:XMI xmi:version="20131001" xmlns:xmi="http://www.omg.org/spec/XMI/20131001" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:OpenStackProfile="http:///schemas/OpenStackProfile/_84dL0LH9EeSPbM90KvLLGQ/0" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:uml="http://www.eclipse.org/uml2/5.0.0/UML" xsi:schemaLocation="http:///schemas/OpenStackProfile/_84dL0LH9EeSPbM90KvLLGQ/0 platform:/plugin/eu.artist.migration.caml/umlprofiles/OpenStackProfile.profile.uml#_84gPILH9EeSPbM90KvLLGQ">
+  <uml:Model xmi:id="_rIQSEK-3EeSgOdsXAG-WkQ" name="Model">
+    <packageImport xmi:type="uml:PackageImport" xmi:id="_rIQSEa-3EeSgOdsXAG-WkQ">
+      <importedPackage xmi:type="uml:Model" href="pathmap://UML_LIBRARIES/UMLPrimitiveTypes.library.uml#_0"/>
+    </packageImport>
+    <packagedElement xmi:type="uml:Package" xmi:id="_F5NzIK-4EeSgOdsXAG-WkQ" name="application-deployment">
+      <packagedElement xmi:type="uml:Artifact" xmi:id="_N-gCwK-5EeSgOdsXAG-WkQ" name="PHPApplication" fileName="Artifact1.zip"/>
+      <packagedElement xmi:type="uml:InstanceSpecification" xmi:id="_ail1cK-5EeSgOdsXAG-WkQ" name="PHPApplication" classifier="_N-gCwK-5EeSgOdsXAG-WkQ"/>
+      <packagedElement xmi:type="uml:InstanceSpecification" xmi:id="_cVbFAK-5EeSgOdsXAG-WkQ" name="ApachePHPModule">
+        <classifier xmi:type="uml:Artifact" href="platform:/plugin/eu.artist.migration.caml.operatingenvironments/umllibraries/webOperatingEnvironment.uml#_-WgMcK-zEeSSO8AaqXOftg"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:InstanceSpecification" xmi:id="_CF5F8K_NEeSW_ecrcFbEAQ" name="ApacheWebServer">
+        <deployment xmi:type="uml:Deployment" xmi:id="_R1kq4K_NEeSW_ecrcFbEAQ" client="_CF5F8K_NEeSW_ecrcFbEAQ" supplier="_ail1cK-5EeSgOdsXAG-WkQ" deployedArtifact="_ail1cK-5EeSgOdsXAG-WkQ"/>
+        <deployment xmi:type="uml:Deployment" xmi:id="_V2h-4K_NEeSW_ecrcFbEAQ" name="" client="_CF5F8K_NEeSW_ecrcFbEAQ" supplier="_cVbFAK-5EeSgOdsXAG-WkQ" deployedArtifact="_cVbFAK-5EeSgOdsXAG-WkQ"/>
+        <classifier xmi:type="uml:ExecutionEnvironment" href="platform:/plugin/eu.artist.migration.caml.operatingenvironments/umllibraries/webOperatingEnvironment.uml#_Mi-HoK-zEeSSO8AaqXOftg"/>
+        <slot xmi:type="uml:Slot" xmi:id="_IdJUMK_TEeSW_ecrcFbEAQ">
+          <definingFeature xmi:type="uml:Property" href="platform:/plugin/eu.artist.migration.caml.operatingenvironments/umllibraries/webOperatingEnvironment.uml#_s1wSgK-zEeSSO8AaqXOftg"/>
+          <value xmi:type="uml:LiteralString" xmi:id="_OmLvAK_TEeSW_ecrcFbEAQ" value="8080"/>
+        </slot>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Dependency" xmi:id="_E7QEIK-6EeSgOdsXAG-WkQ" client="_ail1cK-5EeSgOdsXAG-WkQ" supplier="_cVbFAK-5EeSgOdsXAG-WkQ"/>
+      <packagedElement xmi:type="uml:InstanceSpecification" xmi:id="_i00aQK_NEeSW_ecrcFbEAQ" name="Ubuntu-13_10-Server">
+        <deployment xmi:type="uml:Deployment" xmi:id="_oIUewK_OEeSW_ecrcFbEAQ" client="_i00aQK_NEeSW_ecrcFbEAQ" supplier="_CF5F8K_NEeSW_ecrcFbEAQ" deployedArtifact="_CF5F8K_NEeSW_ecrcFbEAQ"/>
+        <classifier xmi:type="uml:Node" href="platform:/plugin/eu.artist.migration.caml/umllibraries/CAMLLibrary.uml#_c73bKf3gEeKQb7onjNL6fQ"/>
+      </packagedElement>
+    </packagedElement>
+    <profileApplication xmi:type="uml:ProfileApplication" xmi:id="_n_MogLH-EeS5EJ4d4YYvjA">
+      <eAnnotations xmi:type="ecore:EAnnotation" xmi:id="_n_m4MLH-EeS5EJ4d4YYvjA" source="PapyrusVersion">
+        <details xmi:type="ecore:EStringToStringMapEntry" xmi:id="_n_m4MbH-EeS5EJ4d4YYvjA" key="Version" value="0.0.1"/>
+        <details xmi:type="ecore:EStringToStringMapEntry" xmi:id="_n_m4MrH-EeS5EJ4d4YYvjA" key="Comment" value=""/>
+        <details xmi:type="ecore:EStringToStringMapEntry" xmi:id="_n_m4M7H-EeS5EJ4d4YYvjA" key="Copyright" value="Copyright (c) 2014 Vienna University of Technology.&#xD;&#xA;All rights reserved. This program and the accompanying materials&#xD;&#xA;are made available under the terms of the Eclipse Public License v1.0&#xD;&#xA;which accompanies this distribution, and is available at&#xD;&#xA;http://www.eclipse.org/legal/epl-v10.html&#xD;&#xA;&#xD;&#xA;Contributors:&#xD;&#xA;Alexander Bergmayr (Vienna University of Technology) - initial API and implementation&#xD;&#xA;&#xD;&#xA;Initially developed in the context of ARTIST EU project www.artist-project.eu"/>
+        <details xmi:type="ecore:EStringToStringMapEntry" xmi:id="_n_m4NLH-EeS5EJ4d4YYvjA" key="Date" value="2015-02-11"/>
+        <details xmi:type="ecore:EStringToStringMapEntry" xmi:id="_n_m4NbH-EeS5EJ4d4YYvjA" key="Author" value=""/>
+      </eAnnotations>
+      <eAnnotations xmi:type="ecore:EAnnotation" xmi:id="_n_mRILH-EeS5EJ4d4YYvjA" source="http://www.eclipse.org/uml2/2.0.0/UML">
+        <references xmi:type="ecore:EPackage" href="platform:/plugin/eu.artist.migration.caml/umlprofiles/OpenStackProfile.profile.uml#_84gPILH9EeSPbM90KvLLGQ"/>
+      </eAnnotations>
+      <appliedProfile xmi:type="uml:Profile" href="platform:/plugin/eu.artist.migration.caml/umlprofiles/OpenStackProfile.profile.uml#_JQe8oLH3EeSPbM90KvLLGQ"/>
+    </profileApplication>
+  </uml:Model>
+  <OpenStackProfile:Ubuntu1310Server xmi:id="_pDFHYLH-EeS5EJ4d4YYvjA" base_InstanceSpecification="_i00aQK_NEeSW_ecrcFbEAQ" NumCpus="1" Memory="1024" instanceType="m1.small"/>
+</xmi:XMI>
