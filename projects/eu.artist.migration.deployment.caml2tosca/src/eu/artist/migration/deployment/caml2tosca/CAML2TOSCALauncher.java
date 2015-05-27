@@ -37,6 +37,10 @@ import eu.artist.migration.deployment.tosca.util.ToscaUtil;
 
 public class CAML2TOSCALauncher {
 	
+	private final String moduleLocation = "platform:/plugin/eu.artist.migration.deployment.caml2tosca/trafo/";
+	private final String typesTrafo = "caml2toscaTypes";
+	private final String templatesTrafo = "caml2toscaTemplates";
+	
 	public void runCAML2TOSCATypes(String toscaModelPath) throws IOException {
 		ExecEnv env = EmftvmFactory.eINSTANCE.createExecEnv();
 		
@@ -99,9 +103,9 @@ public class CAML2TOSCALauncher {
 		env.registerOutputModel("TM", toscaM);
 
 		// Load and run module
-		DefaultModuleResolver mr = new DefaultModuleResolver("trafo/", new ResourceSetImpl());
+		DefaultModuleResolver mr = new DefaultModuleResolver(moduleLocation, new ResourceSetImpl());
 		TimingData td = new TimingData();
-		env.loadModule(mr, "caml2toscaTypes");
+		env.loadModule(mr, typesTrafo);
 		td.finishLoading();
 		env.run(td);
 		td.finish();
@@ -141,7 +145,8 @@ public class CAML2TOSCALauncher {
 		
 		// the CAML deployment model
 		Model umlM = EmftvmFactory.eINSTANCE.createModel();
-		umlM.setResource(rs.getResource(URI.createURI(camlModelPath, true), true));
+		// umlM.setResource(rs.getResource(URI.createURI(camlModelPath, true), true));
+		umlM.setResource(rs.getResource(URI.createFileURI(new File(camlModelPath).getAbsolutePath()), true));
 		env.registerInputModel("UMLM", umlM);
 		
 		// the CAML library
@@ -181,9 +186,9 @@ public class CAML2TOSCALauncher {
 		env.registerOutputModel("TM", toscaM);
 
 		// Load and run module
-		DefaultModuleResolver mr = new DefaultModuleResolver("trafo/", new ResourceSetImpl());
+		DefaultModuleResolver mr = new DefaultModuleResolver(moduleLocation, new ResourceSetImpl());
 		TimingData td = new TimingData();
-		env.loadModule(mr, "caml2toscaTemplates");
+		env.loadModule(mr, templatesTrafo);
 		td.finishLoading();
 		env.run(td);
 		td.finish();

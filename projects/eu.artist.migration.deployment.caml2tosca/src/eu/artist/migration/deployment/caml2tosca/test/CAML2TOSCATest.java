@@ -54,7 +54,9 @@ public class CAML2TOSCATest {
 	@Test
 	public void testCAML2TOSCATemplates() throws IOException {
 		CAML2TOSCALauncher launcher = new CAML2TOSCALauncher();
-		launcher.runCAML2TOSCATemplates("model/HelloApp.uml", "model/HelloApp.tosca");
+		// launcher.runCAML2TOSCATemplates("model/HelloApp.uml", "model/HelloApp.tosca");
+		launcher.runCAML2TOSCATemplates("D:\\03_DEVELOPMENT\\workspace-eclipse-luna\\test\\HelloApp.uml",
+				"D:\\03_DEVELOPMENT\\workspace-eclipse-luna\\test\\HelloApp.tosca");
 	}
 	
 	@Test
