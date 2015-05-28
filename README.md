@@ -10,8 +10,9 @@ The transformations are located in this [project](https://github.com/alexander-b
 
 To learn how to execute the transformations, visit the [Wiki](https://github.com/alexander-bergmayr/caml2tosca/wiki/Main).
 
-External resources
-This work is part of the [ARTIST](www.artist-project.eu) project.
-Repository of the [OpenTOSCA](https://github.com/opentosca) ecosystem.
-[Winery](https://projects.eclipse.org/projects/soa.winery) is a TOSCA modeling environment.
-We have used [Papyrus](https://www.eclipse.org/papyrus/) to model UML/CAML deployment models.
+#### External resources
+
+* This work is part of the [ARTIST](www.artist-project.eu) project.
+* Repository of the [OpenTOSCA](https://github.com/opentosca) ecosystem.
+* [Winery](https://projects.eclipse.org/projects/soa.winery) is a [TOSCA](http://docs.oasis-open.org/tosca/TOSCA/v1.0/os/TOSCA-v1.0-os.html) modeling environment.
+* We have used [Papyrus](https://www.eclipse.org/papyrus/) to model [CAML](https://github.com/alexander-bergmayr/caml) deployment models.
