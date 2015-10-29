@@ -60,7 +60,40 @@ rule CloudLibraryClassifier2NodeType {
 			"abstract" <- if(s.isAbstract) then #yes else #no endif,
 			-- Assumption: Single-Inheritance
 			derivedFrom <- s.generalization -> any(e | true),
-			propertiesDefinition <- if(s.attribute -> exists(e | e.association = OclUndefined)) then thisModule.createPropertiesDefinition(s) else OclUndefined endif 
+			-- properties
+			propertiesDefinition <- if(s.attribute -> exists(e | e.association = OclUndefined)) then thisModule.createPropertiesDefinition(s) else OclUndefined endif
+		)
+}
+
+-- @extends CloudLibraryClassifier2NodeType 
+rule CloudLibraryClass2NodeType {
+	from
+		s: UMLMM!Class
+	to
+		t0: TOSCA!TNodeType (
+			-- operations
+			interfaces <- if(not s.ownedOperation -> isEmpty()) then thisModule.createInterface(s) else OclUndefined endif
+		)
+}
+
+rule Operation2Operation {
+	from
+		s: UMLMM!Operation
+	to
+		t0: TOSCA!TOperation (
+			name <- s.name,
+			inputParameters <- if(s.ownedParameter -> exists(e | e.direction = '#in')) then thisModule.createInputParametersType(s) else OclUndefined endif,
+			outputParameters <- if(s.ownedParameter -> exists(e | e.direction = #out)) then thisModule.createOutputParametersType(s) else OclUndefined endif
+		)
+}
+
+rule Parameter2Parameter {
+	from
+		s: UMLMM!Parameter
+	to
+		t0: TOSCA!TParameter (
+			name <- s.name,
+			type <- s.type.name
 		)
 }
 
@@ -100,6 +133,38 @@ lazy rule createPropertiesDefinition {
 	to
 		t1: TOSCA!PropertiesDefinitionType (
 			element <- s.createQName(thisModule.toscaSpecificTypesNsURI, s.createPropertiesDefinition(), thisModule.toscaSpecificTypesPrefix) 
+		)
+}
+
+lazy rule createInterface {
+	from
+		s: UMLMM!Class
+	to
+		t0: TOSCA!InterfacesType (
+			interface <- Sequence{t1} 
+		),
+		
+		t1 : TOSCA!TInterface (
+			name <- thisModule.toscaSpecificInterfaceNsURI,
+			operation <- s.ownedOperation
+		)
+}
+
+lazy rule createInputParametersType {
+	from
+		s: UMLMM!Operation
+	to
+		t1 : TOSCA!InputParametersType (
+			inputParameter <- s.ownedParameter -> select(e | e.direction = '#in')
+		)
+}
+
+lazy rule createOutputParametersType {
+	from
+		s: UMLMM!Operation
+	to
+		t1 : TOSCA!OutputParametersType (
+			inputParameter <- s.ownedParameter -> select(e | e.direction = #out)	
 		)
 }
 

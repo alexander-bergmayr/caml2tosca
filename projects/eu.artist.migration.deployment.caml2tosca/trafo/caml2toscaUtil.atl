@@ -26,6 +26,7 @@ helper def: cloudInstanceType : UMLMM!Stereotype = thisModule.cloudStereotypes -
 helper def: globalNsURI: String = 'http://opentosca.org/types/declarative';
 helper def: toscaBaseTypesNsURI : String = 'http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes';
 helper def: toscaSpecificTypesNsURI : String = 'http://docs.oasis-open.org/tosca/ns/2011/12/ToscaSpecificTypes';
+helper def: toscaSpecificInterfaceNsURI : String = 'http://docs.oasis-open.org/tosca/ns/2011/12/interfaces/lifecycle';
 
 -- a global prefix 
 helper def: globalPrefix : String = 'ns85';
