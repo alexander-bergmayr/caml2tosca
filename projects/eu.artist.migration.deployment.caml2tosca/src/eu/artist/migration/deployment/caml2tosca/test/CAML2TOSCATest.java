@@ -15,26 +15,16 @@
  */
 package eu.artist.migration.deployment.caml2tosca.test;
 
+import java.io.File;
 import java.io.IOException;
 
-import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.eclipse.emf.ecore.resource.impl.ResourceFactoryRegistryImpl;
-import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
-import org.eclipse.emf.ecore.xmi.impl.EcoreResourceFactoryImpl;
-import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
-import org.eclipse.emf.ecore.xmi.impl.XMLResourceFactoryImpl;
-import org.eclipse.uml2.uml.resource.UMLResource;
+import org.eclipse.emf.common.util.URI;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import eu.artist.migration.deployment.caml2tosca.CAML2TOSCALauncher;
-import eu.artist.migration.deployment.tosca.util.ToscaResourceFactoryImpl;
 
-/**
- * @author abergmay
- *
- */
 public class CAML2TOSCATest {
 
 	/**
@@ -54,15 +44,26 @@ public class CAML2TOSCATest {
 	@Test
 	public void testCAML2TOSCATemplates() throws IOException {
 		CAML2TOSCALauncher launcher = new CAML2TOSCALauncher();
-		// launcher.runCAML2TOSCATemplates("model/HelloApp.uml", "model/HelloApp.tosca");
-		launcher.runCAML2TOSCATemplates("D:\\03_DEVELOPMENT\\workspace-eclipse-luna\\test\\HelloApp.uml",
-				"D:\\03_DEVELOPMENT\\workspace-eclipse-luna\\test\\HelloApp.tosca");
+		launcher.runCAML2TOSCATemplates("model/HelloApp.uml", "model/HelloApp.tosca");
 	}
 	
 	@Test
 	public void testCAML2TOSCATypes() throws IOException {
 		CAML2TOSCALauncher launcher = new CAML2TOSCALauncher();
-		launcher.runCAML2TOSCATypes("model/NodeType_Test.tosca");
+		URI profileURI = URI.createPlatformPluginURI("eu.artist.migration.caml", true);
+		profileURI = profileURI.appendSegments(new String[]{"umlprofiles", "AmazonAWSProfile.profile.uml"});
+		// profileURI = profileURI.appendSegments(new String[]{"umlprofiles", "OpenStackProfile.profile.uml"});
+		
+		launcher.runCAML2TOSCATypes(profileURI, "model/NodeType_Test.tosca");
+	}
+	
+	@Test
+	public void testCAML2TOSCATypesWithOperation() throws IOException {
+		CAML2TOSCALauncher launcher = new CAML2TOSCALauncher();
+		String profilePath = "model/type-including-operation.profile.uml";
+		URI profileURI = URI.createFileURI(new File(profilePath).getAbsolutePath());
+		
+		launcher.runCAML2TOSCATypes(profileURI, "model/type-including-operation.tosca");
 	}
 
 }

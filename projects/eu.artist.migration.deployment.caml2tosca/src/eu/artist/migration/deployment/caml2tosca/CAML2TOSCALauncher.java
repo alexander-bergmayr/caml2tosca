@@ -41,7 +41,7 @@ public class CAML2TOSCALauncher {
 	private final String typesTrafo = "caml2toscaTypes";
 	private final String templatesTrafo = "caml2toscaTemplates";
 	
-	public void runCAML2TOSCATypes(String toscaModelPath) throws IOException {
+	public void runCAML2TOSCATypes(URI camlProfile, String toscaModelPath) throws IOException {
 		ExecEnv env = EmftvmFactory.eINSTANCE.createExecEnv();
 		
 		ResourceSet rs = new ResourceSetImpl();		
@@ -82,11 +82,8 @@ public class CAML2TOSCALauncher {
 		env.registerInputModel("CL", cL);
 		
 		// the CAML profile 
-		Model cP = EmftvmFactory.eINSTANCE.createModel();
-		URI profileURI = URI.createPlatformPluginURI("eu.artist.migration.caml", true);
-		profileURI = profileURI.appendSegments(new String[]{"umlprofiles", "AmazonAWSProfile.profile.uml"});
-		// profileURI = profileURI.appendSegments(new String[]{"umlprofiles", "OpenStackProfile.profile.uml"});
-		cP.setResource(rs.getResource(profileURI, true));
+		Model cP = EmftvmFactory.eINSTANCE.createModel();		
+		cP.setResource(rs.getResource(camlProfile, true));
 		env.registerInputModel("CP", cP);
 		
 //		Model cCP = EmftvmFactory.eINSTANCE.createModel();
