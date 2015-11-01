@@ -82,7 +82,7 @@ rule Operation2Operation {
 	to
 		t0: TOSCA!TOperation (
 			name <- s.name,
-			inputParameters <- if(s.ownedParameter -> exists(e | e.direction = '#in')) then thisModule.createInputParametersType(s) else OclUndefined endif,
+			inputParameters <- if(s.ownedParameter -> exists(e | e.direction.toString() = '#in')) then thisModule.createInputParametersType(s) else OclUndefined endif,
 			outputParameters <- if(s.ownedParameter -> exists(e | e.direction = #out)) then thisModule.createOutputParametersType(s) else OclUndefined endif
 		)
 }
@@ -155,7 +155,7 @@ lazy rule createInputParametersType {
 		s: UMLMM!Operation
 	to
 		t1 : TOSCA!InputParametersType (
-			inputParameter <- s.ownedParameter -> select(e | e.direction = '#in')
+			inputParameter <- s.ownedParameter -> select(e | e.direction.toString() = '#in')
 		)
 }
 
@@ -164,7 +164,7 @@ lazy rule createOutputParametersType {
 		s: UMLMM!Operation
 	to
 		t1 : TOSCA!OutputParametersType (
-			inputParameter <- s.ownedParameter -> select(e | e.direction = #out)	
+			outputParameter <- s.ownedParameter -> select(e | e.direction = #out)	
 		)
 }
 
